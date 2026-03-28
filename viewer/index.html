@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>4milmillones Archive Viewer</title>
+    <style>
+      :root {
+        --bg: #f5f1e8;
+        --panel: #fffaf0;
+        --ink: #20201c;
+        --muted: #6d685e;
+        --line: #d9cfbc;
+        --accent: #2f6a55;
+        --warn: #a0412a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        color: var(--ink);
+        background: linear-gradient(180deg, #efe7d7 0%, var(--bg) 45%, #fbf8f2 100%);
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 32px 20px 48px;
+      }
+
+      .hero,
+      .panel {
+        background: rgba(255, 250, 240, 0.92);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(72, 58, 34, 0.08);
+      }
+
+      .hero {
+        padding: 28px;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2 {
+        margin: 0;
+        font-weight: 600;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        letter-spacing: -0.03em;
+      }
+
+      p {
+        line-height: 1.5;
+      }
+
+      .lede {
+        max-width: 72ch;
+        color: var(--muted);
+        font-size: 1.05rem;
+      }
+
+      .stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .stat {
+        padding: 10px 14px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #f8f3e7;
+        font-size: 0.95rem;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) auto;
+        gap: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fffdf8;
+        color: var(--ink);
+        font: inherit;
+      }
+
+      .sections {
+        display: grid;
+        gap: 20px;
+      }
+
+      .panel {
+        padding: 18px 20px;
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .count {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: start;
+        padding: 12px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .row:first-child {
+        border-top: 0;
+      }
+
+      .title {
+        text-transform: capitalize;
+        font-size: 1.05rem;
+      }
+
+      .meta {
+        color: var(--muted);
+        font-size: 0.92rem;
+        margin-top: 4px;
+        word-break: break-word;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      a.button,
+      .badge {
+        display: inline-block;
+        padding: 8px 11px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        text-decoration: none;
+        white-space: nowrap;
+        font-size: 0.9rem;
+      }
+
+      a.button {
+        color: var(--ink);
+        background: #fffdf8;
+      }
+
+      a.button.primary {
+        color: white;
+        border-color: var(--accent);
+        background: var(--accent);
+      }
+
+      .badge.archived {
+        color: var(--accent);
+        background: #edf7f2;
+      }
+
+      .badge.missing {
+        color: var(--warn);
+        background: #fbede8;
+      }
+
+      .empty {
+        color: var(--muted);
+      }
+
+      @media (max-width: 760px) {
+        .controls,
+        .row {
+          grid-template-columns: 1fr;
+        }
+
+        .actions {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <h1>4milmillones Archive Viewer</h1>
+        <p class="lede">
+          Local-only navigation for the preserved site. This does not replace the archive under
+          <code>archive/raw/</code>; it just makes it easier to move through the captured pages and spot gaps.
+        </p>
+        <div class="stats" id="stats"></div>
+      </section>
+
+      <section class="panel controls">
+        <input id="search" type="search" placeholder="Search slug, title, or URL">
+        <select id="language">
+          <option value="all">All languages</option>
+          <option value="es">Spanish</option>
+          <option value="en">English</option>
+          <option value="missing">Missing only</option>
+        </select>
+      </section>
+
+      <div class="sections">
+        <section class="panel">
+          <div class="section-head">
+            <h2>Spanish</h2>
+            <span class="count" id="es-count"></span>
+          </div>
+          <div class="list" id="es-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <h2>English</h2>
+            <span class="count" id="en-count"></span>
+          </div>
+          <div class="list" id="en-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <h2>Missing</h2>
+            <span class="count" id="missing-count"></span>
+          </div>
+          <div class="list" id="missing-list"></div>
+        </section>
+      </div>
+    </main>
+
+    <script src="./pages.js"></script>
+    <script>
+      const pages = Array.isArray(window.ARCHIVE_PAGES) ? window.ARCHIVE_PAGES : [];
+
+      const stats = {
+        total: pages.length,
+        archived: pages.filter((page) => page.status === "archived").length,
+        missing: pages.filter((page) => page.status === "missing").length,
+      };
+
+      document.getElementById("stats").innerHTML = [
+        `<div class="stat">Pages in manifest: ${stats.total}</div>`,
+        `<div class="stat">Archived locally: ${stats.archived}</div>`,
+        `<div class="stat">Missing on live site: ${stats.missing}</div>`,
+      ].join("");
+
+      const searchEl = document.getElementById("search");
+      const languageEl = document.getElementById("language");
+
+      const targets = {
+        es: document.getElementById("es-list"),
+        en: document.getElementById("en-list"),
+        missing: document.getElementById("missing-list"),
+      };
+
+      const counts = {
+        es: document.getElementById("es-count"),
+        en: document.getElementById("en-count"),
+        missing: document.getElementById("missing-count"),
+      };
+
+      function rowTemplate(page) {
+        const statusClass = page.status === "archived" ? "archived" : "missing";
+        const failure = page.failure ? `Failure: ${page.failure}` : "";
+        const openLocal = page.status === "archived"
+          ? `<a class="button primary" href="${page.localPath}" target="_blank" rel="noreferrer">Open local HTML</a>`
+          : "";
+
+        return `
+          <article class="row">
+            <div>
+              <div class="title">${page.title}</div>
+              <div class="meta"><code>/${page.slug === "home" ? "" : page.slug}</code> · ${page.url}</div>
+              ${failure ? `<div class="meta">${failure}</div>` : ""}
+            </div>
+            <div class="actions">
+              <span class="badge ${statusClass}">${page.status}</span>
+              ${openLocal}
+              <a class="button" href="${page.url}" target="_blank" rel="noreferrer">Open original URL</a>
+            </div>
+          </article>
+        `;
+      }
+
+      function render() {
+        const query = searchEl.value.trim().toLowerCase();
+        const filter = languageEl.value;
+
+        const filtered = pages.filter((page) => {
+          const haystack = `${page.slug} ${page.title} ${page.url}`.toLowerCase();
+          const matchesQuery = !query || haystack.includes(query);
+
+          if (!matchesQuery) {
+            return false;
+          }
+
+          if (filter === "all") {
+            return true;
+          }
+
+          if (filter === "missing") {
+            return page.status === "missing";
+          }
+
+          return page.language === filter;
+        });
+
+        const groups = {
+          es: filtered.filter((page) => page.language === "es" && page.status === "archived"),
+          en: filtered.filter((page) => page.language === "en" && page.status === "archived"),
+          missing: filtered.filter((page) => page.status === "missing"),
+        };
+
+        for (const key of Object.keys(groups)) {
+          counts[key].textContent = `${groups[key].length} shown`;
+          targets[key].innerHTML = groups[key].length
+            ? groups[key].map(rowTemplate).join("")
+            : `<p class="empty">No pages match the current filter.</p>`;
+        }
+      }
+
+      searchEl.addEventListener("input", render);
+      languageEl.addEventListener("change", render);
+      render();
+    </script>
+  </body>
+</html>
