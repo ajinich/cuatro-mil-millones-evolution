@@ -1,0 +1,16 @@
+HTTP/2 200 
+accept-ranges: bytes
+age: 0
+content-encoding: gzip
+content-type: text/html;charset=utf-8
+date: Sat, 28 Mar 2026 04:41:26 GMT
+etag: W/"58aac6c760a100afe25823243565e4c6--gzip"
+expires: Thu, 01 Jan 1970 00:00:00 GMT
+server: Squarespace
+set-cookie: crumb=BUfJf59vwNn4NDAyZmQ1MjY4ODRkZTk1OTIwNTIzMTNhZTFlM2Y4;Secure;Path=/
+strict-transport-security: max-age=15552000
+vary: Accept-Encoding
+x-content-type-options: nosniff
+x-contextid: s05h7B4s/TNjMoJer
+x-frame-options: SAMEORIGIN
+
